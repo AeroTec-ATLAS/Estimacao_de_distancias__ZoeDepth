@@ -5,7 +5,8 @@ Existem 4 .py:
   --> video_local: Este código funciona exatamnete ao anterior mas em vés de usar imagens é live video com a webcam do pc
   --> live_video: Este código ainda se encontra em desenvolvimento, mas também será igual aos 2 anteriores mas o live video vem da câmara do mini drone através de uma porta udp
 
-
+Link para descarregar um ficheiro que é demasiado pesado para o git gratis :)
+https://drive.google.com/file/d/1LRVURtHU89xV5ZeahTgpkclFGVPZ1XQQ/view?usp=drive_link
 -----------------------------
         INSTALAÇÕES:
 -----------------------------
