@@ -7,6 +7,7 @@ Existem 4 .py:
 
 Link para descarregar um ficheiro que é demasiado pesado para o git gratis :)
 https://drive.google.com/file/d/1LRVURtHU89xV5ZeahTgpkclFGVPZ1XQQ/view?usp=drive_link
+https://drive.google.com/file/d/1CIPOVniQLPUgSINPU3nuYWxpZcm-Ku-a/view?usp=drive_link
 -----------------------------
         INSTALAÇÕES:
 -----------------------------
