@@ -1,6 +1,7 @@
 import sys
 sys.path.append("/home/raquel2/ZoeDepth")  ##mudar caminho
 import os
+import csv
 import cv2
 import torch
 import numpy as np
@@ -17,6 +18,8 @@ import argparse
 DEFAULT_DATASET = 'nyu'
 DEFAULT_PRETRAINED = 'local::./checkpoints/depth_anything_metric_depth_indoor.pt' #mudar se for preciso
 
+# Nome do ficheiro CSV onde vamos armazenar os resultados
+csv_filename = "resultados_detecao.csv"
 
 def list_cameras():
     index = 0
@@ -89,10 +92,11 @@ def process_frame(img, yolo_model, zoe_model, dataset, K):
         z = float(np.percentile(bb.flatten(), 5))
         uc = (x1c + x2c) // 2
         vc = (y1c + y2c) // 2
+        pixel_dist = math.sqrt((uc - CX)**2 + (vc - CY)**2)
         X = (uc - CX) * z / FX
         Y = (vc - CY) * z / FY
         dist = math.sqrt(X**2 + Y**2 + z**2)
-        distances.append((i, dist, X, Y, z))
+        distances.append((i, dist, X, Y, z, pixel_dist))
  
         cv2.rectangle(depth_color, (x1c, y1c), (x2c, y2c), (0,255,0), 2)
         cv2.circle(depth_color, (uc, vc), 5, (255,0,0), -1)
@@ -109,6 +113,14 @@ def main():
     parser.add_argument('--yolo_weights', type=str, default='yolov8n.pt')
     args = parser.parse_args()
 
+
+
+    # 0) Cria o ficheiro CSV com cabeçalho, caso ainda não exista
+    if not os.path.exists(csv_filename):
+        with open(csv_filename, mode="w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Pessoa", "Distância (m)", "Distância em Pixéis"])
+
     # Modelos
     yolo_model, zoe_model = initialize_models(args.yolo_weights, args.dataset, args.pretrained)
 
@@ -121,7 +133,7 @@ def main():
     if not cap.isOpened():
         print("Não foi possível abrir a webcam.")
         return
-
+    
     frame_count = 0
     SKIP_FRAMES = 3
     last_processed = None
@@ -139,9 +151,13 @@ def main():
         if frame_count % SKIP_FRAMES == 0:
             processed_frame, last_distances = process_frame(frame, yolo_model, zoe_model, args.dataset, K)
             last_processed = processed_frame
-            for idx, d, x, y, z in last_distances:
+            for idx, d, x, y, z, pixel_dist in last_distances:
                 print(f"Frame {frame_count}, Person {idx}: {d:.2f}m (X={-x:.2f}m, Y={-y:.2f}m, Z={z:.2f}m)")
 
+                # Escreve no CSV
+                with open(csv_filename, mode="a", newline="", encoding="utf-8") as f:
+                    writer = csv.writer(f)
+                    writer.writerow([f"Pessoa {idx}", f"{d:.2f}", pixel_dist])
 
         display_frame = last_processed if last_processed is not None else frame
         cv2.imshow("Live Depth Estimation", display_frame)
